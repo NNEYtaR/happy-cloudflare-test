@@ -1,0 +1,7 @@
+-- Migration number: 0001 	 2026-09-05T09:38:57.261Z
+CREATE TABLE notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
