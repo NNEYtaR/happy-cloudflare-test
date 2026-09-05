@@ -83,11 +83,74 @@
                 const createdAt = document.createElement("small");
                 createdAt.textContent = note.created_at;
 
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+
+                editButton.addEventListener("click", async () => {
+                    const newTitle = prompt("Edit title:", note.title);
+
+                    if (newTitle === null) return;
+
+                    const newContent = prompt(
+                        "Edit content:",
+                        note.content ?? ""
+                    );
+
+                    if (newContent === null) return;
+
+                    const response = await fetch(`/api/notes/${note.id}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            title: newTitle,
+                            content: newContent
+                        })
+                    });
+
+                    if (!response.ok) {
+                        status.textContent = "Update failed";
+                        return;
+                    }
+
+                    status.textContent = "Updated ✅";
+
+                    await loadNotes();
+                });
+
+                deleteButton.addEventListener("click", async () => {
+                    const confirmed = confirm(`Delete "${note.title}"?`);
+
+                    if (!confirmed) return;
+
+                    const response = await fetch(`/api/notes/${note.id}`, {
+                        method: "DELETE"
+                    });
+
+                    if (!response.ok) {
+                        status.textContent = "Delete failed";
+                        return;
+                    }
+
+                    status.textContent = "Deleted ✅";
+
+                    await loadNotes();
+                });
+
                 const hr = document.createElement("hr");
 
                 div.appendChild(title);
                 div.appendChild(content);
                 div.appendChild(createdAt);
+                div.appendChild(document.createElement("br"));
+                div.appendChild(document.createElement("br"));
+                div.appendChild(editButton);
+                div.appendChild(document.createTextNode(" "));
+                div.appendChild(deleteButton);
                 div.appendChild(hr);
 
                 notesContainer.appendChild(div);

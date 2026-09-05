@@ -50,6 +50,68 @@ export default {
       );
     }
 
+    if (url.pathname.startsWith("/api/notes/") && request.method === "PUT") {
+      const id = Number(url.pathname.split("/").pop());
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return Response.json({ error: "invalid note id" }, { status: 400 });
+      }
+
+      const body = await request.json();
+
+      const title = body.title?.trim();
+      const content = body.content?.trim() || null;
+
+      if (!title) {
+        return Response.json({ error: "title is required" }, { status: 400 });
+      }
+
+      const result = await env.DB.prepare(
+        `
+        UPDATE notes
+        SET title = ?, content = ?
+        WHERE id = ?
+        `,
+      )
+        .bind(title, content, id)
+        .run();
+
+      if (result.meta.changes === 0) {
+        return Response.json({ error: "note not found" }, { status: 404 });
+      }
+
+      return Response.json({
+        success: true,
+        updated_id: id,
+      });
+    }
+
+    if (url.pathname.startsWith("/api/notes/") && request.method === "DELETE") {
+      const id = Number(url.pathname.split("/").pop());
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return Response.json({ error: "invalid note id" }, { status: 400 });
+      }
+
+      const result = await env.DB.prepare(
+        `
+        DELETE FROM notes
+        WHERE id = ?
+        `,
+      )
+        .bind(id)
+        .run();
+
+      if (result.meta.changes === 0) {
+        return Response.json({ error: "note not found" }, { status: 404 });
+      }
+
+      return Response.json({
+        success: true,
+        deleted_id: id,
+      });
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
