@@ -42,8 +42,25 @@
     <div class="card">
         <h1>Hello Cloudflare V3 🚀</h1>
         <p>Deploy update by Happy 😎</p>
+
+        <button id="call-api">Call API</button>
+
+        <p id="result"></p>
     </div>
 
+    <script>
+        const button = document.getElementById("call-api");
+        const result = document.getElementById("result");
+
+        button.addEventListener("click", async () => {
+            result.textContent = "Loading...";
+
+            const response = await fetch("/api/hello");
+            const data = await response.json();
+
+            result.textContent = data.message;
+        });
+    </script>
 </body>
 
 </html>
